@@ -1,54 +1,49 @@
-# React + TypeScript + Vite
+<h1 align="center" id="title">algoviasual-song</h1>
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+<p id="description">Data Structure and Algorithm Course Final Project Second Semester EEPIS</p>
 
-Currently, two official plugins are available:
+  
+  
+<h2>🧐 Features</h2>
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Babel](https://babeljs.io/) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+Here're some of the project's best features:
 
-## Expanding the ESLint configuration
+*   Search Song
+*   Sort Song by Title
+*   Sort Song by Year
+*   Sort Song by Artists
 
-If you are developing a production application, we recommend updating the configuration to enable type-aware lint rules:
+<h2>🛠️ Installation Steps:</h2>
 
-```js
-export default tseslint.config({
-  extends: [
-    // Remove ...tseslint.configs.recommended and replace with this
-    ...tseslint.configs.recommendedTypeChecked,
-    // Alternatively, use this for stricter rules
-    ...tseslint.configs.strictTypeChecked,
-    // Optionally, add this for stylistic rules
-    ...tseslint.configs.stylisticTypeChecked,
-  ],
-  languageOptions: {
-    // other options...
-    parserOptions: {
-      project: ['./tsconfig.node.json', './tsconfig.app.json'],
-      tsconfigRootDir: import.meta.dirname,
-    },
-  },
-})
+<p>1. Clone this repository</p>
+
+```
+git clone https://github.com/yosmisyael/algovisual-song
 ```
 
-You can also install [eslint-plugin-react-x](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-x) and [eslint-plugin-react-dom](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-dom) for React-specific lint rules:
+<p>2. Install required dependencies</p>
 
-```js
-// eslint.config.js
-import reactX from 'eslint-plugin-react-x'
-import reactDom from 'eslint-plugin-react-dom'
-
-export default tseslint.config({
-  plugins: {
-    // Add the react-x and react-dom plugins
-    'react-x': reactX,
-    'react-dom': reactDom,
-  },
-  rules: {
-    // other rules...
-    // Enable its recommended typescript rules
-    ...reactX.configs['recommended-typescript'].rules,
-    ...reactDom.configs.recommended.rules,
-  },
-})
 ```
+npm install
+```
+
+<p>3. Run the application</p>
+
+```
+npm run dev
+```
+
+  
+  
+<h2>💻 Built with</h2>
+
+Technologies used in the project:
+
+*   React
+*   Postgresql
+*   TypeScript
+*   Vite
+
+<h2>🛡️ License:</h2>
+
+This project is licensed under the MIT
