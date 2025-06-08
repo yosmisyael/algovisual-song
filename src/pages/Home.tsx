@@ -167,10 +167,10 @@ const MusicPlayerInterface = () => {
 
                   <div className="flex items-center justify-center space-x-4">
                     <button className="w-12 h-12 bg-black rounded-full flex items-center justify-center hover:bg-black/80 transition-colors">
-                      <SkipBack className="w-5 h-5" />
+                      <SkipBack className="w-5 h-5 hover:cursor-pointer" />
                     </button>
                     <button
-                      className="w-12 h-12 bg-black rounded-full flex items-center justify-center hover:bg-black/80 transition-colors"
+                      className="w-12 h-12 bg-black rounded-full flex items-center justify-center hover:bg-black/80 transition-colors hover:cursor-pointer"
                       onClick={() => setIsPlaying(!isPlaying)}
                     >
                       { isPlaying ?
@@ -180,7 +180,7 @@ const MusicPlayerInterface = () => {
                       }
                     </button>
                     <button className="w-12 h-12 bg-black rounded-full flex items-center justify-center hover:bg-black/80 transition-colors">
-                      <SkipForward className="w-5 h-5" />
+                      <SkipForward className="w-5 h-5 hover:cursor-pointer" />
                     </button>
                   </div>
                 </div>
@@ -202,9 +202,3 @@ const MusicPlayerInterface = () => {
 };
 
 export default MusicPlayerInterface;
-
-{/*<div className="w-full h-full bg-gray-200 flex items-center justify-center">*/}
-{/*  <div className="w-32 h-32 bg-black rounded-full flex items-center justify-center">*/}
-{/*    <div className="w-16 h-16 bg-gray-400 rounded-full"></div>*/}
-{/*  </div>*/}
-{/*</div>*/}
