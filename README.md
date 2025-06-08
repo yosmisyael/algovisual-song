@@ -40,7 +40,7 @@ npm run dev
 Technologies used in the project:
 
 *   React
-*   Postgresql
+*   Mysql
 *   TypeScript
 *   Vite
 
