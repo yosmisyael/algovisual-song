@@ -1,9 +1,5 @@
 import {useRef, useState} from 'react';
 import {
-  BarChart3,
-  Music,
-  Bell,
-  Settings,
   Heart,
   SkipBack,
   Pause,
@@ -14,13 +10,14 @@ import {Lyrics} from "../components/Lyrics.tsx";
 import type {AlbumProps} from "../types/AlbumProp.ts";
 import {Albums} from "../components/Albums.tsx";
 import {SongDetail} from "../components/SongDetail.tsx";
-import Navbar from "../components/Navbar.tsx";
 import type {
   AudioControlProps,
   EqualizerControlProp,
   PredefinedPreset,
   VolumeControlProp
 } from "../types/AudioControlProp.ts";
+import SearchSortBar from "../components/SearchSortBar.tsx";
+import Sidebar from "../components/Sidebar.tsx";
 
 const MusicPlayerInterface = () => {
   const [isPlaying, setIsPlaying] = useState(false);
@@ -70,13 +67,6 @@ const MusicPlayerInterface = () => {
     { id: 5, cover: '/api/placeholder/80/80', color: 'bg-yellow-600' }
   ];
 
-  const sidebarItems = [
-    { icon: Music, label: 'Playing' },
-    { icon: Music, label: 'Playlist' },
-    { icon: BarChart3, label: 'Charts' },
-    { icon: Music, label: 'Library' }
-  ];
-
   const lyrics = [
     "I know a place",
     "It's somewhere I go when I need to remember your face",
@@ -123,33 +113,11 @@ const MusicPlayerInterface = () => {
 
   return (
     <section className="flex flex-col min-h-screen bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900 text-white">
-      <Navbar />
+      <SearchSortBar />
       {/* Main Content */}
       <div className="flex">
         {/* Left Sidebar */}
-        <div className="w-20 bg-black/20 backdrop-blur-sm flex flex-col items-center py-6 space-y-6">
-          <div className="w-12 h-12 bg-green-500/20 rounded-lg flex items-center justify-center border border-green-500/30">
-            <Music className="w-6 h-6 text-green-400" />
-          </div>
-
-          {sidebarItems.map((item, index) => (
-            <div key={index} className="w-12 h-12 bg-white/10 rounded-full flex items-center justify-center hover:bg-white/20 transition-colors cursor-pointer">
-              <item.icon className="w-5 h-5" />
-            </div>
-          ))}
-
-          <div className="flex-1" />
-
-          <div className="w-12 h-12 bg-white/10 rounded-full flex items-center justify-center hover:bg-white/20 transition-colors cursor-pointer">
-            <Bell className="w-5 h-5" />
-          </div>
-
-          <div className="w-12 h-12 bg-white/10 rounded-full flex items-center justify-center hover:bg-white/20 transition-colors cursor-pointer">
-            <Settings className="w-5 h-5" />
-          </div>
-
-          <div className="w-12 h-12 bg-white rounded-full"></div>
-        </div>
+        <Sidebar />
         {/* Content Window */}
         <div className="flex-1 flex flex-col">
           <div className="flex-1 grid grid-cols-8 p-6 space-x-6">
