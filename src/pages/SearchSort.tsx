@@ -18,6 +18,7 @@ const SearchSort = () => {
     const [isSorting, setIsSorting] = useState(false);
     const [selectedAlgorithm, setSelectedAlgorithm] = useState<"merge" | "quick" | "binary">("merge");
     const [activeIndices, setActiveIndices] = useState<number[]>([]);
+    const [pivotInfo, setPivotInfo] = useState<{ value: number; index: number } | null>(null);
 
     const sleep = (ms: number) => new Promise((res) => setTimeout(res, ms));
 
@@ -35,6 +36,7 @@ const SearchSort = () => {
 
         setIsSorting(false);
         setActiveIndices([]);
+        setPivotInfo(null);
     };
 
     const mergeSortVisual = async (arr: number[]) => {
@@ -78,20 +80,22 @@ const SearchSort = () => {
 
     const partition = async (arr: number[], low: number, high: number) => {
         const pivot = arr[high];
+        setPivotInfo({ value: pivot, index: high });
         let i = low - 1;
 
         for (let j = low; j < high; j++) {
             setActiveIndices([j, high]);
+            await sleep(350);
             if (arr[j] < pivot) {
                 i++;
                 [arr[i], arr[j]] = [arr[j], arr[i]];
                 setArray([...arr]);
-                await sleep(300);
+                await sleep(350);
             }
         }
         [arr[i + 1], arr[high]] = [arr[high], arr[i + 1]];
         setArray([...arr]);
-        await sleep(300);
+        await sleep(350);
         return i + 1;
     };
 
@@ -107,6 +111,7 @@ const SearchSort = () => {
 
     const handleReset = () => {
         setArray(generateRandomArray(10));
+        setPivotInfo(null);
     };
 
     return (
@@ -190,10 +195,29 @@ const SearchSort = () => {
                                     </motion.div>
                                 ))}
                             </div>
-                            <button onClick={handleReset} className="flex gap-2 items-center bg-yellow-300 text-black px-4 py-2 rounded-xl font-medium hover:cursor-pointer hover:bg-yellow-400 text-lg">
-                                <Dices size={18} />
-                                Reset
-                            </button>
+
+                            <div className="flex justify-between items-start">
+                                <button onClick={handleReset} className="flex gap-2 items-center bg-yellow-300 text-black px-4 py-2 rounded-xl font-medium hover:cursor-pointer hover:bg-yellow-400 text-lg">
+                                    <Dices size={18} />
+                                    Reset
+                                </button>
+
+                                {selectedAlgorithm === "quick" && pivotInfo && isSorting && (
+                                    <div className="bg-white/10 border border-orange-400 rounded-xl p-4 min-w-[200px]">
+                                        <h4 className="text-lg font-semibold mb-2 text-orange-300">Current Pivot</h4>
+                                        <div className="space-y-2">
+                                            <div className="flex justify-between">
+                                                <span className="text-white/70">Value:</span>
+                                                <span className="font-bold text-orange-300">{pivotInfo.value}</span>
+                                            </div>
+                                            <div className="flex justify-between">
+                                                <span className="text-white/70">Index:</span>
+                                                <span className="font-bold text-orange-300">{pivotInfo.index}</span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                )}
+                            </div>
                         </div>
                     </div>
 
