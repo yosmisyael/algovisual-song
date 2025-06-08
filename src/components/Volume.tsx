@@ -1,17 +1,13 @@
-// src/components/VolumeControl.js
-import {Volume1, Volume2, VolumeX} from "lucide-react";
-import {type FC, useEffect, useRef, useState} from "react";
-import type {VolumeControlProp} from "../types/VolumeControlProp.ts";
 import * as React from "react";
-import Dropdown from "./Dropdown.tsx";
-import type {DropdownOptions} from "../types/DropdownProp.ts";
-import Equalizer from "../Equalizer.tsx";
+import type {VolumeControlProp} from "../types/AudioControlProp.ts";
+import {useEffect, useRef} from "react";
+import {Volume1, Volume2, VolumeX} from "lucide-react";
 
-const VolumeControl: FC<VolumeControlProp> = ({
-        volume,
-        onVolumeChange,
-        isMuted,
-        onMuteToggle
+export const Volume = ({
+    volume,
+    onVolumeChange,
+    isMuted,
+    onMuteToggle
 }: VolumeControlProp) => {
     const sliderRef = useRef<HTMLDivElement>(null);
 
@@ -77,69 +73,31 @@ const VolumeControl: FC<VolumeControlProp> = ({
     // Calculate the volume percentage
     const volumePercentage = Math.round(volume * 100);
 
-    // Define available audio control modes
-    const audioOpts: DropdownOptions<string>[] = [
-        {
-            value: "volume",
-        },
-        {
-            value: "equalizer",
-        },
-    ];
-
-    const [audioMode, setAudioMode] = useState('volume');
-
-    const onChangeAudioMode = () => {
-        if (audioMode === 'volume') {
-            setAudioMode('equalizer');
-        } else {
-            setAudioMode('volume');
-        }
-    }
-
     return (
-        <div className="w-full bg-slate-800/50 rounded-2xl p-6 backdrop-blur-sm">
-            <div className="flex justify-between items-center pb-6">
-                <h5 className="text-xl font-semibold">Volume Control</h5>
-                {/* select audio control mode */}
-                <Dropdown options={audioOpts} value={audioMode} onChange={onChangeAudioMode} />
-            </div>
-            {/* simple mode */}
-            {
-                audioMode === 'volume' ? (
-                    <div className="flex items-center space-x-4">
-                <button onClick={() => onMuteToggle(!isMuted)} className="hover:opacity-80 transition-opacity hover:cursor-pointer">
-                    {getIcon()}
-                </button>
+        <div className="flex items-center space-x-4">
+            <button onClick={() => onMuteToggle(!isMuted)} className="hover:opacity-80 transition-opacity hover:cursor-pointer">
+                {getIcon()}
+            </button>
 
-                {/* The main interactive slider area */}
+            {/* The main interactive slider area */}
+            <div
+                ref={sliderRef}
+                className="flex-1 bg-slate-700 h-2 rounded-full relative cursor-pointer group"
+                onPointerDown={handlePointerDown}
+                role="slider"
+            >
+                {/* Progress Bar */}
                 <div
-                    ref={sliderRef}
-                    className="flex-1 bg-slate-700 h-2 rounded-full relative cursor-pointer group"
-                    onPointerDown={handlePointerDown}
-                    role="slider"
-                >
-                    {/* Progress Bar */}
-                    <div
-                        className="absolute left-0 top-0 h-full bg-gradient-to-r from-red-600 to-red-500 rounded-full"
-                        style={{ width: `${volumePercentage}%`, pointerEvents: 'none' }}
-                    />
+                    className="absolute left-0 top-0 h-full bg-gradient-to-r from-red-600 to-red-500 rounded-full"
+                    style={{ width: `${volumePercentage}%`, pointerEvents: 'none' }}
+                />
 
-                    <div
-                        className="absolute top-1/2 -translate-y-1/2 -translate-x-1/2 w-4 h-4 bg-white rounded-full shadow-lg transition-transform duration-150 group-hover:scale-110"
-                        style={{ left: `${volumePercentage}%`}}
-                    />
-                </div>
-                <div className="text-sm font-bold w-12 text-center">{volumePercentage}%</div>
+                <div
+                    className="absolute top-1/2 -translate-y-1/2 -translate-x-1/2 w-4 h-4 bg-white rounded-full shadow-lg transition-transform duration-150 group-hover:scale-110"
+                    style={{ left: `${volumePercentage}%`}}
+                />
             </div>
-                ) : (
-                    <Equalizer />
-                )
-            }
-
-            {/* equalizer mode */}
+            <div className="text-sm font-bold w-12 text-center">{volumePercentage}%</div>
         </div>
     );
 }
-
-export default VolumeControl;

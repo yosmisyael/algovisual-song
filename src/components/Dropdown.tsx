@@ -8,7 +8,7 @@ const CustomDropdown = ({
     options,
     value,
     onChange,
-}: GenericDropdownProps<string>) => {
+}: GenericDropdownProps<AudioMode>) => {
     const selectedOption = options.find(opt => opt.value === value);
     const [isOpen, setIsOpen] = useState(false);
     const dropdownRef = useRef<HTMLDivElement>(null);

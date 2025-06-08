@@ -9,7 +9,7 @@ import {
   Pause,
   SkipForward, Play,
 } from 'lucide-react';
-import VolumeControl from "../components/Volume.tsx";
+import AudioControl from "../components/AudioControl.tsx";
 import {Lyrics} from "../components/Lyrics.tsx";
 import type {AlbumProps} from "../types/AlbumProp.ts";
 import {Albums} from "../components/Albums.tsx";
@@ -187,7 +187,7 @@ const MusicPlayerInterface = () => {
               {/* Lyrics */}
               <Lyrics lyrics={lyrics} />
               {/* Volume */}
-              <VolumeControl volume={volume} onVolumeChange={handleVolumeChange} isMuted={isMuted} onMuteToggle={handleMuteAction} />
+              <AudioControl volume={volume} onVolumeChange={handleVolumeChange} isMuted={isMuted} onMuteToggle={handleMuteAction} />
             </div>
           </div>
         </div>
