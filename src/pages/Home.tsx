@@ -10,16 +10,31 @@ import {Lyrics} from "../components/Lyrics.tsx";
 import type {AlbumProps} from "../types/AlbumProp.ts";
 import {Albums} from "../components/Albums.tsx";
 import {SongDetail} from "../components/SongDetail.tsx";
+import type {
+  AudioControlProps,
+  EqualizerControlProp,
+  PredefinedPreset,
+  VolumeControlProp
+} from "../types/AudioControlProp.ts";
 import SearchSortBar from "../components/SearchSortBar.tsx";
 import Sidebar from "../components/Sidebar.tsx";
-
 
 const MusicPlayerInterface = () => {
   const [isPlaying, setIsPlaying] = useState(false);
   const [isLiked, setIsLiked] = useState(true);
-
   const [volume, setVolume] = useState(0.75);
   const [isMuted, setIsMuted] = useState(false);
+  const [equalizerBand, setEqualizerBand] = useState([0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]);
+
+  const handleEqualizerChange = (bandIndex: number, value: number) => {
+    const newEqualizerBandsVal = [...equalizerBand];
+    newEqualizerBandsVal[bandIndex] = value;
+    setEqualizerBand(newEqualizerBandsVal);
+  }
+
+  const handleEqualizerPresetChange = (preset: PredefinedPreset) => {
+    setEqualizerBand([...preset.values]);
+  }
 
   const volumeBeforeMute = useRef(volume);
 
@@ -75,6 +90,27 @@ const MusicPlayerInterface = () => {
     "Do you think I have forgotten?",
     "Do you think I have forgotten about you?"
   ];
+
+  const volumeControlProp: VolumeControlProp = {
+    volume,
+    onVolumeChange: handleVolumeChange,
+    isMuted,
+    onMuteToggle: handleMuteAction,
+  }
+
+  const equalizerControlProp: EqualizerControlProp = {
+    bandLabels: ['Gain', '32', '64', '125', '250', '500', '1k', '2k', '4k', '8k', '16k'],
+    bandValues: equalizerBand,
+    onBandChange: handleEqualizerChange,
+    onApplyPreset: handleEqualizerPresetChange,
+  }
+
+  const audioControlProp: AudioControlProps = {
+    volumeProps: volumeControlProp,
+    equalizerProps: equalizerControlProp,
+    currentMode: "equalizer"
+  }
+
   return (
     <section className="flex flex-col min-h-screen bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900 text-white">
       <SearchSortBar />
@@ -156,7 +192,7 @@ const MusicPlayerInterface = () => {
               {/* Lyrics */}
               <Lyrics lyrics={lyrics} />
               {/* Volume */}
-              <AudioControl volume={volume} onVolumeChange={handleVolumeChange} isMuted={isMuted} onMuteToggle={handleMuteAction} />
+              <AudioControl audioControlProps={ audioControlProp }/>
             </div>
           </div>
         </div>
