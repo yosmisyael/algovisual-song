@@ -13,10 +13,12 @@ const generateRandomArray = (n: number) => {
     return arr;
 };
 
+type visualization = "merge" | "quick" | "binary";
+
 const SearchSort = () => {
     const [array, setArray] = useState<number[]>(generateRandomArray(10));
     const [isSorting, setIsSorting] = useState(false);
-    const [selectedAlgorithm, setSelectedAlgorithm] = useState<"merge" | "quick" | "binary">("merge");
+    const [selectedAlgorithm, setSelectedAlgorithm] = useState<visualization>("merge");
     const [activeIndices, setActiveIndices] = useState<number[]>([]);
     const [pivotInfo, setPivotInfo] = useState<{ value: number; index: number } | null>(null);
 
@@ -85,17 +87,17 @@ const SearchSort = () => {
 
         for (let j = low; j < high; j++) {
             setActiveIndices([j, high]);
-            await sleep(350);
+            await sleep(300);
             if (arr[j] < pivot) {
                 i++;
                 [arr[i], arr[j]] = [arr[j], arr[i]];
                 setArray([...arr]);
-                await sleep(350);
+                await sleep(300);
             }
         }
         [arr[i + 1], arr[high]] = [arr[high], arr[i + 1]];
         setArray([...arr]);
-        await sleep(350);
+        await sleep(300);
         return i + 1;
     };
 
@@ -116,10 +118,13 @@ const SearchSort = () => {
 
     return (
         <section className="flex flex-col min-h-screen bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900 text-white">
+            {/* top bar */}
             <SearchSortBar />
+            {/* content */}
             <div className="flex">
+                {/* sidebar content */}
                 <Sidebar />
-
+                {/* main content */}
                 <div className="flex-1 grid grid-cols-3 gap-6 p-6">
                     <div className="col-span-2 space-y-6">
                         <div className="flex justify-between items-center">
@@ -129,19 +134,24 @@ const SearchSort = () => {
                                 <span className="font-semibold">Sort</span>
                             </div>
 
-                            <div className="flex items-center space-x-4">
+                            <div className="flex items-center space-x-2">
                                 {["merge", "quick", "binary"].map((algo) => (
-                                    <label key={algo} className="flex items-center gap-1 cursor-pointer">
+                                    <label key={algo} className="relative cursor-pointer">
                                         <input
                                             type="radio"
                                             name="algo"
                                             value={algo}
                                             checked={selectedAlgorithm === algo}
-                                            onChange={() => setSelectedAlgorithm(algo as any)}
+                                            onChange={() => setSelectedAlgorithm(algo as visualization)}
+                                            className="sr-only"
                                         />
-                                        <span className={`text-sm ${selectedAlgorithm === algo ? "text-white" : "text-white/50"}`}>
-                      {algo[0].toUpperCase() + algo.slice(1)}
-                    </span>
+                                        <div className={`px-4 py-2 text-lg rounded-xl font-medium transition-all duration-200 ${
+                                            selectedAlgorithm === algo
+                                                ? "bg-red-600 text-white shadow-lg shadow-red-600/30 border-2 border-red-400"
+                                                : "bg-white/10 text-white/70 hover:bg-white/20 hover:text-white border-2 border-transparent"
+                                        }`}>
+                                            {algo[0].toUpperCase() + algo.slice(1)}
+                                        </div>
                                     </label>
                                 ))}
                             </div>

@@ -9,7 +9,7 @@ const Sidebar = () => {
     ];
 
     return (
-        <div className="w-20 bg-black/20 backdrop-blur-sm flex flex-col items-center py-6 space-y-6">
+        <div className="w-20 min-h-screen bg-black/20 backdrop-blur-sm flex flex-col items-center py-6 space-y-6">
             <div className="w-12 h-12 bg-green-500/20 rounded-lg flex items-center justify-center border border-green-500/30">
                 <Music className="w-6 h-6 text-green-400" />
             </div>
