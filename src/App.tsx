@@ -1,5 +1,5 @@
 import MusicPlayerInterface from './pages/Home.tsx'
-import SearchSortPage from './pages/SearchSortPage.tsx' // pastikan path-nya benar
+import SearchSort from './pages/SearchSort.tsx'
 import './App.css'
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 
@@ -8,7 +8,7 @@ function App() {
         <BrowserRouter>
             <Routes>
                 <Route path="/" element={<MusicPlayerInterface />} />
-                <Route path="/search-sort" element={<SearchSortPage />} />
+                <Route path="/search-sort" element={<SearchSort />} />
             </Routes>
         </BrowserRouter>
     );
