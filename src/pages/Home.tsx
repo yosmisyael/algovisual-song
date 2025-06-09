@@ -1,14 +1,8 @@
-import {useRef, useState} from 'react';
-import {
-  Heart,
-  SkipBack,
-  Pause,
-  SkipForward, Play,
-} from 'lucide-react';
+import {useRef, useState, useEffect} from 'react';
 import AudioControl from "../components/AudioControl.tsx";
 import {Lyrics} from "../components/Lyrics.tsx";
-import type {AlbumProps} from "../types/AlbumProp.ts";
-import {Albums} from "../components/Albums.tsx";
+import type {PlaylistProps, Song} from "../types/TrackProp.ts";
+import {Playlist} from "../components/Playlist.tsx";
 import {SongDetail} from "../components/SongDetail.tsx";
 import type {
   AudioControlProps,
@@ -18,13 +12,105 @@ import type {
 } from "../types/AudioControlProp.ts";
 import SearchSortBar from "../components/SearchSortBar.tsx";
 import Sidebar from "../components/Sidebar.tsx";
+import {fetchApiData} from "../lib/api.ts";
+import Player from "../components/Player.tsx";
 
 const MusicPlayerInterface = () => {
+  // states for tracks
   const [isPlaying, setIsPlaying] = useState(false);
-  const [isLiked, setIsLiked] = useState(true);
+  const [currentTrackIndex, setCurrentTrackIndex] = useState<number>(0);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+
+  // states for playlist
+  const [playlist, setPlaylist] = useState<PlaylistProps>({
+    id: 1,
+    name: "My Playlists",
+    cover: "",
+    year: 2023,
+    songs: []
+  });
+
+  // handle skip to next song action
+  const handleSkipNext = () => {
+    if (playlist.songs.length === 0) return;
+
+    setCurrentTrackIndex((prev: number) => {
+      const nextIndex = prev + 1;
+      if (nextIndex < playlist.songs.length) {
+        return nextIndex;
+      } else {
+        return prev; // Stay at current if at the end
+      }
+    });
+  }
+
+  // handle skip to previous song action
+  const handleSkipPrev = () => {
+    if (playlist.songs.length === 0) return;
+
+    setCurrentTrackIndex((prev: number) => {
+      const prevIndex = prev - 1;
+      if (prevIndex >= 0) {
+        return prevIndex;
+      } else {
+        return prev; // Stay at current if at the beginning
+      }
+    });
+  }
+
+  // handle select track
+  const handleSelectTrack = (trackId: number) => {
+    const trackIndex = playlist.songs.findIndex(song => song.id === trackId);
+    if (trackIndex !== -1) {
+      setCurrentTrackIndex(trackIndex);
+      setIsPlaying(true);
+    }
+  }
+
+  const currentTrack = playlist.songs[currentTrackIndex];
+
+  // states for audio control
   const [volume, setVolume] = useState(0.75);
   const [isMuted, setIsMuted] = useState(false);
   const [equalizerBand, setEqualizerBand] = useState([0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]);
+
+  useEffect(() => {
+    const fetchTracks = async () => {
+      try {
+        setLoading(true);
+        setError(null);
+
+        const response: Song[] = await fetchApiData('http://localhost:3000/data') ?? [];
+
+        // update playlists state directly with the songs
+        setPlaylist((prev) => ({
+          ...prev,
+          songs: response
+        }));
+
+        // Only set error if we explicitly got null from the API and no data
+        if (response.length === 0) {
+          console.log("No tracks found or failed to load");
+          setError("No tracks available or failed to load tracks.");
+        }
+
+      } catch (err) {
+        // Handle any unexpected errors that might occur outside the utility function
+        console.error("Unexpected error in fetchTracks:", err);
+        setError("An unexpected error occurred. Please try again.");
+        // Set empty arrays in case of error
+        setPlaylist((prev) => ({
+          ...prev,
+          songs: []
+        }));
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchTracks();
+  }, []);
 
   const handleEqualizerChange = (bandIndex: number, value: number) => {
     const newEqualizerBandsVal = [...equalizerBand];
@@ -59,14 +145,6 @@ const MusicPlayerInterface = () => {
     setVolume(volume);
   }
 
-  const albums: AlbumProps[] = [
-    { id: 1, cover: '/api/placeholder/80/80', color: 'bg-orange-400' },
-    { id: 2, cover: '/api/placeholder/80/80', color: 'bg-green-500' },
-    { id: 3, cover: '/api/placeholder/80/80', color: 'bg-red-600' },
-    { id: 4, cover: '/api/placeholder/80/80', color: 'bg-blue-500' },
-    { id: 5, cover: '/api/placeholder/80/80', color: 'bg-yellow-600' }
-  ];
-
   const lyrics = [
     "I know a place",
     "It's somewhere I go when I need to remember your face",
@@ -74,7 +152,7 @@ const MusicPlayerInterface = () => {
     "Something to do while we try to recall how we met",
     "",
     "Do you think I have forgotten?",
-    "Do you think I have forgotten?", 
+    "Do you think I have forgotten?",
     "Do you think I have forgotten about you?",
     "",
     "You and I (don't let go), we're alive (don't let go)",
@@ -112,92 +190,63 @@ const MusicPlayerInterface = () => {
   }
 
   return (
-    <section className="flex flex-col min-h-screen bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900 text-white">
-      <SearchSortBar />
-      {/* Main Content */}
-      <div className="flex">
-        {/* Left Sidebar */}
-        <Sidebar />
-        {/* Content Window */}
-        <div className="flex-1 flex flex-col">
-          <div className="flex-1 grid grid-cols-8 p-6 space-x-6">
-            {/* Left Panel - Albums */}
-            <div className="col-span-2 space-y-4 ">
-              <Albums albums={albums} />
-              <SongDetail artists={["aespa"]} genre={"kpop"} year={2024} likes={300000} />
-            </div>
+      <section className="flex flex-col min-h-screen bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900 text-white">
+        <SearchSortBar />
+        {/* Main Content */}
+        <div className="flex">
+          {/* Left Sidebar */}
+          <Sidebar />
+          {/* Content Window */}
+          <div className="flex-1 flex flex-col">
+            <div className="flex-1 grid grid-cols-8 p-6 space-x-6">
+              {/* Left Panel - Albums */}
+              <div className="col-span-2 space-y-4 ">
+                {loading ? (
+                    <div className="bg-white/10 rounded-2xl p-6 animate-pulse">
+                      <div className="text-center text-white/70">Loading playlist...</div>
+                    </div>
+                ) : error ? (
+                    <div className="bg-red-500/20 rounded-2xl p-6">
+                      <div className="text-center text-red-200">{error}</div>
+                    </div>
+                ) : playlist.songs.length > 0 ? (
+                    <>
+                      <Playlist
+                          playlist={playlist}
+                          currentTrack={currentTrackIndex + 1}
+                          onClickTrack={handleSelectTrack}
+                      />
+                      <SongDetail song={playlist.songs[currentTrackIndex]}  />
+                    </>
+                ) : (
+                    <div className="bg-white/10 rounded-2xl p-6">
+                      <div className="text-center text-white/70">No songs available</div>
+                    </div>
+                )}
+              </div>
 
-            {/* Center Panel - Now Playing */}
-            <div className="col-span-4 flex flex-col space-y-6">
-              {/* Album Art */}
-              <div className="relative overflow-hidden bg-white/10 rounded-2xl p-8 flex justify-center">
-                {/* background blur */}
-                <div style={{
-                    backgroundImage: `url("https://i1.sndcdn.com/artworks-qNhCnhKWHVfJzkwd-fg7rPA-t500x500.jpg")`,
-                    filter: 'blur(4px)',
-                    backgroundSize: 'cover',
-                    transform: 'scale(1.1)',
-                  }}
-                 className="absolute w-full h-full inset-0 z-0"></div>
-                {/* cover image */}
-                <div className="relative bg-gradient-to-br from-white to-gray-300 rounded-lg">
-                  <img
-                      src="https://i1.sndcdn.com/artworks-qNhCnhKWHVfJzkwd-fg7rPA-t500x500.jpg"
-                      alt="album cover"
-                      className="rounded-lg shadow-lg z-10"
+              {/* Center Panel - Now Playing */}
+              { playlist.songs.length > 0 && currentTrack && (
+                  <Player
+                      currentTrack={currentTrack}
+                      isPlaying={isPlaying}
+                      setIsPlaying={setIsPlaying}
+                      onSkipNext={handleSkipNext}
+                      onSkipPrev={handleSkipPrev}
                   />
-                </div>
+              )}
+
+              {/* Right Panel - Lyrics & Equalizer */}
+              <div className="col-span-2 space-y-6">
+                {/* Lyrics */}
+                <Lyrics lyrics={lyrics} />
+                {/* Volume */}
+                <AudioControl audioControlProps={ audioControlProp }/>
               </div>
-
-              {/* Player Controls */}
-              <div className="flex space-x-6">
-                <div className="flex-1 bg-teal-600/30 rounded-2xl p-6 backdrop-blur-sm">
-                  <div className="flex items-center justify-between mb-4">
-                    <h3 className="text-xl font-semibold">About You</h3>
-                    <Heart
-                      className={`w-6 h-6 cursor-pointer ${isLiked ? 'fill-blue-400 text-blue-400' : 'text-white'}`}
-                      onClick={() => setIsLiked(!isLiked)}
-                    />
-                  </div>
-                  <div className="text-sm text-white/70 mb-6">The 1975</div>
-
-                  <div className="bg-orange-600 h-2 rounded-full mb-6 relative">
-                    <div className="absolute top-1/2 left-1/2 transform -translate-y-1/2 w-4 h-4 bg-white rounded-full"></div>
-                  </div>
-
-                  <div className="flex items-center justify-center space-x-4">
-                    <button className="w-12 h-12 bg-black rounded-full flex items-center justify-center hover:bg-black/80 transition-colors">
-                      <SkipBack className="w-5 h-5 hover:cursor-pointer" />
-                    </button>
-                    <button
-                      className="w-12 h-12 bg-black rounded-full flex items-center justify-center hover:bg-black/80 transition-colors hover:cursor-pointer"
-                      onClick={() => setIsPlaying(!isPlaying)}
-                    >
-                      { isPlaying ?
-                        <Play className="w-5 h-5" />
-                      :
-                        <Pause className="w-5 h-5" />
-                      }
-                    </button>
-                    <button className="w-12 h-12 bg-black rounded-full flex items-center justify-center hover:bg-black/80 transition-colors">
-                      <SkipForward className="w-5 h-5 hover:cursor-pointer" />
-                    </button>
-                  </div>
-                </div>
-              </div>
-            </div>
-
-            {/* Right Panel - Lyrics & Equalizer */}
-            <div className="col-span-2 space-y-6">
-              {/* Lyrics */}
-              <Lyrics lyrics={lyrics} />
-              {/* Volume */}
-              <AudioControl audioControlProps={ audioControlProp }/>
             </div>
           </div>
         </div>
-      </div>
-    </section>
+      </section>
   );
 };
 
