@@ -1,11 +1,10 @@
 import { useState, useRef, useEffect, useCallback } from "react";
 import { motion } from "framer-motion";
-import { ScanEye, Dices, Maximize } from "lucide-react";
+import {ScanEye, Dices, Maximize} from "lucide-react";
 import SearchSortBar from "../components/SearchSortBar.tsx";
 import Sidebar from "../components/Sidebar.tsx";
 
 const generateRandomArray = (n: number) => {
-    // MODIFIED: Start array elements from 1 instead of 4
     const arr = Array.from({ length: n }, (_, i) => i + 1);
     for (let i = arr.length - 1; i > 0; i--) {
         const j = Math.floor(Math.random() * (i + 1));
@@ -14,26 +13,36 @@ const generateRandomArray = (n: number) => {
     return arr;
 };
 
+type algoType = "merge" | "binary" | "quick";
+
+interface Pointer {
+    i?: number;
+    j?: number;
+    pivot?: number;
+    low?: number;
+    mid?: number;
+    high?: number;
+    leftStart?: number; // for merge L
+    rightStart?: number; // for merge R
+    k?: number; // for merge k
+}
+
+interface StepSnapshot {
+    index: number;
+    state: Pointer;
+    elements: number[]
+}
+
 const SearchSort = () => {
     const [array, setArray] = useState<number[]>(generateRandomArray(10));
     const [arraySize, setArraySize] = useState(10);
     const [searchDone, setSearchDone] = useState(false);
     const [isSorting, setIsSorting] = useState(false);
-    const [selectedAlgorithm, setSelectedAlgorithm] = useState<"merge" | "quick" | "binary">("merge");
+    const [selectedAlgorithm, setSelectedAlgorithm] = useState<algoType>("merge");
     const [activeIndices, setActiveIndices] = useState<number[]>([]);
     const [searchValue, setSearchValue] = useState<number | "">("");
     const [foundIndex, setFoundIndex] = useState<number | null>(null);
-    const [pointers, setPointers] = useState<{
-        i?: number;
-        j?: number;
-        pivot?: number;
-        low?: number;
-        mid?: number;
-        high?: number;
-        leftStart?: number; // for merge L
-        rightStart?: number; // for merge R
-        k?: number; // for merge k
-    }>({});
+    const [pointers, setPointers] = useState<Pointer>({});
     // State for pivot info (Quick Sort)
     const [pivotInfo, setPivotInfo] = useState<{ value: number; index: number } | null>(null);
     // State for current algorithm state/pointers (for Merge and Binary)
@@ -44,13 +53,48 @@ const SearchSort = () => {
         low: null, high: null, target: null, status: null,
     });
 
-    // NEW STATES for metrics
+    // States for metrics
     const [totalSwaps, setTotalSwaps] = useState<number | string>(0);
     const [totalComparisons, setTotalComparisons] = useState<number | string>(0);
-
-
     const stopProcessRef = useRef(false);
     const timeoutIdRef = useRef<NodeJS.Timeout | null>(null);
+
+    // Calculate proper height for each elements
+    const getHeight = (size: number, val: number): number => {
+        let adjust: number;
+        let stretchFactor: number;
+        switch (size) {
+            case 40:
+                adjust = 40;
+                stretchFactor = 4;
+                break;
+            case 30:
+                adjust = 20;
+                stretchFactor = 6;
+                break;
+            case 20:
+                adjust = 30;
+                stretchFactor = 8;
+                break;
+            case 15:
+                adjust = 30;
+                stretchFactor = 10;
+                break;
+            case 10:
+                adjust = 45;
+                stretchFactor = 15;
+                break;
+            case 5:
+                adjust = 50;
+                stretchFactor = 30;
+                break;
+            default:
+                stretchFactor = 45;
+                adjust = 15;
+                break;
+        }
+        return val * stretchFactor + adjust;
+    }
 
     // Fungsi sleep yang dapat diinterupsi
     const sleep = useCallback((ms: number) => {
@@ -109,7 +153,6 @@ const SearchSort = () => {
 
     }, [arraySize, selectedAlgorithm, resetVisualStateOnly]);
 
-
     const handleSort = async () => {
         if (isSorting) return;
 
@@ -117,7 +160,7 @@ const SearchSort = () => {
         stopProcessRef.current = false;
         setIsSorting(true);
 
-        let currentArrayToVisualize = [...array];
+        const currentArrayToVisualize = [...array];
 
         if (selectedAlgorithm === "binary") {
             currentArrayToVisualize.sort((a, b) => a - b);
@@ -132,8 +175,8 @@ const SearchSort = () => {
             } else { // Binary Search
                 await binarySearchVisual(currentArrayToVisualize);
             }
-        } catch (error: any) {
-            if (error.message.includes("Process stopped")) {
+        } catch (error) {
+            if (error instanceof Error && error.message.includes("Process stopped")) {
                 console.log("Visualisasi dihentikan.");
             } else {
                 console.error("Terjadi kesalahan:", error);
@@ -162,7 +205,7 @@ const SearchSort = () => {
         },
         quick: {
             space: "O(log(n))",
-            time: "O(n^2)",
+            time: "O(n<sup>2</sup>)",
         },
         binary: {
             space: "O(1)",
@@ -189,8 +232,8 @@ const SearchSort = () => {
     };
 
     const merge = async (arr: number[], left: number, mid: number, right: number) => {
-        let leftArr = arr.slice(left, mid + 1);
-        let rightArr = arr.slice(mid + 1, right + 1);
+        const leftArr = arr.slice(left, mid + 1);
+        const rightArr = arr.slice(mid + 1, right + 1);
 
         let i = 0;
         let j = 0;
@@ -268,7 +311,6 @@ const SearchSort = () => {
             arr[k++] = rightArr[j++];
             setArray([...arr]);
         }
-        // setCurrentAlgoState({}); // Removed this to keep values until final reset
     };
 
     const quickSortVisual = async (arr: number[], low: number, high: number) => {
@@ -285,7 +327,7 @@ const SearchSort = () => {
     const partition = async (arr: number[], low: number, high: number) => {
         if (stopProcessRef.current) throw new Error("Process stopped");
         const pivot = arr[high];
-        setPivotInfo({ value: pivot, index: high }); // Set pivot info
+        setPivotInfo({ value: pivot, index: high });
         let i = low - 1;
 
         for (let j = low; j < high; j++) {
@@ -384,7 +426,7 @@ const SearchSort = () => {
         setSearchDone(true);
     };
 
-    // Handler untuk perubahan algoritma
+    // Handle algorithm select
     const handleAlgorithmChange = (algo: "merge" | "quick" | "binary") => {
         resetVisualStateOnly(algo); // Pass the new algorithm to reset metrics correctly
         setSelectedAlgorithm(algo);
@@ -444,14 +486,19 @@ const SearchSort = () => {
         return value.toString(); // For string values like phase or status, or numbers not representing indices
     };
 
+    // playback controls components
+    const [history, setHistory] = useState<StepSnapshot[]>();
+    const [isPlaybackMode, setIsPlaybackMode] = useState<boolean>(false);
 
     return (
         <section
             className="flex flex-col min-h-screen bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900 text-white">
             <SearchSortBar/>
             <div className="flex">
+                {/* sidebar */}
                 <Sidebar/>
 
+                {/* main content */}
                 <div className="flex-1 grid grid-cols-3 gap-6 p-6">
                     <div className="col-span-2 space-y-6">
                         <div className="flex justify-between items-center">
@@ -469,7 +516,7 @@ const SearchSort = () => {
                                             name="algo"
                                             value={algo}
                                             checked={selectedAlgorithm === algo}
-                                            onChange={() => handleAlgorithmChange(algo as any)}
+                                            onChange={() => handleAlgorithmChange(algo as algoType)}
                                             className="sr-only"
                                         />
                                         <div className={`px-4 py-2 text-lg rounded-xl font-medium transition-all duration-200 ${
@@ -487,13 +534,13 @@ const SearchSort = () => {
                                         value={searchValue}
                                         onChange={handleSearchValueChange}
                                         placeholder="Cari angka..."
-                                        className="bg-white/10 border border-white/20 text-white px-3 py-1 rounded-lg text-sm [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
+                                        className="bg-white/10 border border-white/20 text-white px-4 py-2 rounded-lg text-base [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
                                     />
                                 )}
                             </div>
                         </div>
 
-                        {/* MODIFIED: Ensure sticky is correctly applied */}
+                        {/* Ensure sticky is correctly applied */}
                         <div className="bg-white/5 rounded-xl p-4 flex flex-col h-64 top-24">
                             <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-3">
                                 <span className="text-xl font-semibold">Result</span>
@@ -521,7 +568,6 @@ const SearchSort = () => {
                             </div>
                         </div>
 
-
                         {/* Increased vertical spacing here: space-y-6 */}
                         <div className="bg-white/5 rounded-xl p-5 space-y-10">
                             <div className="flex justify-between items-center">
@@ -538,7 +584,7 @@ const SearchSort = () => {
                                 </button>
                             </div>
 
-                            {/* MODIFIED: Conditional message display based on selectedAlgorithm and state */}
+                            {/* Conditional message display based on selectedAlgorithm and state */}
                             <div className="text-center text-sm text-white/80 mt-4">
                                 {selectedAlgorithm === "binary" ? (
                                     // Binary Search Messages
@@ -564,7 +610,7 @@ const SearchSort = () => {
                                     )
                                 )}
                             </div>
-
+                            {/* Render elements */}
                             <div className="flex items-end justify-between h-40 space-x-1 sm:space-x-2 relative">
                                 {array.map((value, index) => (
                                     <motion.div
@@ -580,12 +626,12 @@ const SearchSort = () => {
                                         }`}
                                         transition={{layout: {duration: 0.3}}}
                                         style={{
-                                            // MODIFIED: Adjusted height multiplier for smaller values
-                                            height: `${value * 5}px`, // Changed from 4px to 8px for better scaling
+                                            // adjust bar height
+                                            height: `${getHeight(arraySize, value)}px`,
                                             width: `min(max(${100 / array.length}%, 30px), 80px)`,
                                         }}
                                     >
-                                        {/* Pointer Labels */}
+                                        {/* Pointer labels for merge */}
                                         {selectedAlgorithm === "merge" && (
                                             <>
                                                 {pointers.leftStart === index && (
@@ -605,7 +651,7 @@ const SearchSort = () => {
                                                 )}
                                             </>
                                         )}
-
+                                        {/* Pointer labels for quick */}
                                         {selectedAlgorithm === "quick" && (
                                             <>
                                                 {pointers.i === index && (
@@ -625,7 +671,7 @@ const SearchSort = () => {
                                                 )}
                                             </>
                                         )}
-
+                                        {/* Pointer labels for binary */}
                                         {selectedAlgorithm === "binary" && (
                                             <>
                                                 {pointers.low === index && (
@@ -646,28 +692,26 @@ const SearchSort = () => {
                                             </>
                                         )}
 
-                                        {/* Bar Value */}
-                                        <span className="block text-sm font-semibold text-white">{value}</span>
+                                        {/* Bar value */}
+                                        <span className="block text-base font-semibold text-white">{value}</span>
                                     </motion.div>
                                 ))}
                             </div>
-
-
-                            <div className="flex justify-between items-start">
-                                <button onClick={() => {
-                                    resetVisualStateOnly(selectedAlgorithm); // Ensure reset is called with current algorithm
-                                    const newArray = generateRandomArray(arraySize);
-                                    setArray(newArray);
-                                    if (selectedAlgorithm === "binary") {
-                                        setArray([...newArray].sort((a, b) => a - b));
-                                    }
-                                    setSearchValue("");
-                                }}
-                                        className="flex gap-2 items-center bg-yellow-300 text-black px-4 py-2 rounded-xl font-medium hover:cursor-pointer hover:bg-yellow-400 text-lg">
-                                    <Dices size={18}/>
-                                    Reset
-                                </button>
-                            </div>
+                            {/* Reset array elements */}
+                            <button onClick={() => {
+                                resetVisualStateOnly(selectedAlgorithm);
+                                const newArray = generateRandomArray(arraySize);
+                                setArray(newArray);
+                                if (selectedAlgorithm === "binary") {
+                                    setArray([...newArray].sort((a, b) => a - b));
+                                }
+                                setSearchValue("");
+                            }}
+                                    className="flex gap-2 items-center bg-yellow-300 text-black px-4 py-2 rounded-xl font-medium hover:cursor-pointer hover:bg-yellow-400 text-lg"
+                            >
+                                <Dices size={18}/>
+                                Reset
+                            </button>
                         </div>
                     </div>
 
@@ -680,20 +724,23 @@ const SearchSort = () => {
                         </div>
                         <div className="bg-white/5 rounded-xl p-4">
                             <h4 className="text-xl mb-2 font-semibold">Time Complexity</h4>
-                            <div className="bg-cyan-700 text-purple-300 px-4 py-2 rounded-lg text-center font-semibold">
-                                {complexityMap[selectedAlgorithm].time}
+                            <div
+                                className="bg-cyan-700 text-purple-300 px-4 py-2 rounded-lg text-center font-semibold"
+                                dangerouslySetInnerHTML={{ __html: complexityMap[selectedAlgorithm].time }}
+                            >
                             </div>
                         </div>
-                        {/* Algorithm-specific State Display - ALWAYS VISIBLE */}
+
+                        {/* Algorithm State Component */}
                         <div className="bg-white/10 border border-orange-400 rounded-xl p-4 min-w-[200px]">
-                            <h4 className="text-lg font-semibold mb-2 text-orange-300">
+                            <h4 className="text-xl font-semibold mb-2 text-orange-300">
                                 {selectedAlgorithm === "quick" ? "Current Pivot" : "Current Pointers"}
                             </h4>
-                            <div className="space-y-2 text-sm">
+                            <div className="space-y-2 text-base">
                                 {selectedAlgorithm === "quick" && (
                                     <>
                                         <div className="flex justify-between">
-                                            <span className="text-white/70">Pivot Val:</span>
+                                            <span className="text-white/70">Pivot Value:</span>
                                             <span className="font-bold text-orange-300">{pivotInfo?.value ?? '-'}</span>
                                         </div>
                                         <div className="flex justify-between">
@@ -773,12 +820,12 @@ const SearchSort = () => {
                             </div>
                         </div>
 
-                        {/* NEW: Total Swaps and Total Comparisons */}
+                        {/* Performance Metric Component */}
                         <div className="bg-white/10 border border-purple-400 rounded-xl p-4 min-w-[200px]">
-                            <h4 className="text-lg font-semibold mb-2 text-purple-300">
+                            <h4 className="text-xl font-semibold mb-2 text-purple-300">
                                 Metrics
                             </h4>
-                            <div className="space-y-2 text-sm">
+                            <div className="space-y-2 text-base">
                                 <div className="flex justify-between">
                                     <span className="text-white/70">Total Swaps:</span>
                                     {/* Display based on algorithm */}
