@@ -1,6 +1,6 @@
 import type {AlbumProps} from "../types/AlbumProp.ts";
 
-export const Albums = ({ albums }: {albums: AlbumProps[]}   ) => (
+export const Playlists = ({ albums }: {albums: AlbumProps[]}   ) => (
     <>
         {albums.map((album, index) => (
             <div key={album.id} className="flex items-center space-x-4 p-3 bg-white/5 rounded-xl hover:bg-white/10 transition-colors cursor-pointer">
