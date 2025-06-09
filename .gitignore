@@ -12,6 +12,9 @@ dist
 dist-ssr
 *.local
 
+public/audio/*
+server.json
+
 # Editor directories and files
 .vscode/*
 !.vscode/extensions.json
