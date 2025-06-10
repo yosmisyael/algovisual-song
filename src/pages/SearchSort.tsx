@@ -1,8 +1,9 @@
 import { useState, useRef, useEffect, useCallback } from "react";
 import { motion } from "framer-motion";
 import {ScanEye, Dices, Maximize} from "lucide-react";
-import SearchSortBar from "../components/SearchSortBar.tsx";
+import Navbar from "../components/Navbar.tsx";
 import Sidebar from "../components/Sidebar.tsx";
+import SongQuery from "../components/SongQuery.tsx";
 
 const generateRandomArray = (n: number) => {
     const arr = Array.from({ length: n }, (_, i) => i + 1);
@@ -36,6 +37,11 @@ interface StepSnapshot {
 const SearchSort = () => {
     const [array, setArray] = useState<number[]>(generateRandomArray(10));
     const [arraySize, setArraySize] = useState(10);
+    // state for song sort and search
+    const [querySize, setQuerySize] = useState(10);
+    // state for search term
+    const [searchQuery, setSearchQuery] = useState("");
+
     const [searchDone, setSearchDone] = useState(false);
     const [isSorting, setIsSorting] = useState(false);
     const [selectedAlgorithm, setSelectedAlgorithm] = useState<algoType>("merge");
@@ -493,7 +499,7 @@ const SearchSort = () => {
     return (
         <section
             className="flex flex-col min-h-screen bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900 text-white">
-            <SearchSortBar/>
+            <Navbar onSearch={setSearchQuery}/>
             <div className="flex">
                 {/* sidebar */}
                 <Sidebar/>
@@ -507,8 +513,47 @@ const SearchSort = () => {
                                 <span>/</span>
                                 <span className="font-semibold">Sort</span>
                             </div>
+                        </div>
 
-                            <div className="flex items-center space-x-4">
+                        {/* Render songs search and sort */}
+                        <SongQuery
+                            songQueryProps={{
+                                querySize: querySize,
+                                onChangeQuerySize: setQuerySize,
+                                onSearch: setSearchQuery,
+                                searchTerm: searchQuery,
+                            }}
+                        />
+                        {/* Visualization Compenent */}
+
+                        <div className="bg-white/5 rounded-xl p-5 space-y-10 flex flex-col">
+                            <div className="flex justify-between items-center">
+                                <span className="text-xl font-semibold">Visualization</span>
+                                <div className="flex gap-2">
+                                    <button
+                                        disabled={isSorting}
+                                        onClick={handleSort}
+                                        className={`px-4 py-2 flex items-center gap-2 font-medium rounded-xl text-lg hover:cursor-pointer ${
+                                            isSorting ? "bg-white/20 cursor-not-allowed" : "bg-white/10 hover:bg-white/20"
+                                        }`}
+                                    >
+                                        <ScanEye size={18}/>
+                                        {isSorting ? "Sorting..." : "Visualize"}
+                                    </button>
+                                    <select
+                                        value={arraySize}
+                                        onChange={(e) => setArraySize(parseInt(e.target.value))}
+                                        className="bg-cyan-700 px-3 py-2 rounded-lg text-base text-white w-full sm:w-auto"
+                                    >
+                                        {[5, 10, 15, 20, 30, 40].map((size) => (
+                                            <option key={size} value={size}>
+                                                n = {size}
+                                            </option>
+                                        ))}
+                                    </select>
+                                </div>
+                            </div>
+                            <div className="ms-auto flex items-center gap-2">
                                 {["merge", "quick", "binary"].map((algo) => (
                                     <label key={algo} className="relative cursor-pointer">
                                         <input
@@ -537,51 +582,6 @@ const SearchSort = () => {
                                         className="bg-white/10 border border-white/20 text-white px-4 py-2 rounded-lg text-base [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
                                     />
                                 )}
-                            </div>
-                        </div>
-
-                        {/* Ensure sticky is correctly applied */}
-                        <div className="bg-white/5 rounded-xl p-4 flex flex-col h-64 top-24">
-                            <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-3">
-                                <span className="text-xl font-semibold">Result</span>
-
-                                <select
-                                    value={arraySize}
-                                    onChange={(e) => handleArraySizeChange(parseInt(e.target.value))}
-                                    className="bg-cyan-700 px-3 py-2 rounded-lg text-sm text-white w-full sm:w-auto"
-                                >
-                                    {[5, 10, 15, 20, 30, 40].map((size) => (
-                                        <option key={size} value={size}>
-                                            n = {size}
-                                        </option>
-                                    ))}
-                                </select>
-                            </div>
-
-                            <div className="mt-auto">
-                                <button
-                                    className="flex gap-2 items-center justify-start hover:cursor-pointer hover:bg-yellow-400 bg-yellow-300 text-black px-4 py-2 rounded-xl"
-                                >
-                                    <Maximize size={18} />
-                                    Full View
-                                </button>
-                            </div>
-                        </div>
-
-                        {/* Increased vertical spacing here: space-y-6 */}
-                        <div className="bg-white/5 rounded-xl p-5 space-y-10">
-                            <div className="flex justify-between items-center">
-                                <span className="text-xl font-semibold">Visualization</span>
-                                <button
-                                    disabled={isSorting}
-                                    onClick={handleSort}
-                                    className={`px-4 py-2 flex items-center gap-2 font-medium rounded-xl text-lg hover:cursor-pointer ${
-                                        isSorting ? "bg-white/20 cursor-not-allowed" : "bg-white/10 hover:bg-white/20"
-                                    }`}
-                                >
-                                    <ScanEye size={18}/>
-                                    {isSorting ? "Sorting..." : "Visualize"}
-                                </button>
                             </div>
 
                             {/* Conditional message display based on selectedAlgorithm and state */}
@@ -707,7 +707,7 @@ const SearchSort = () => {
                                 }
                                 setSearchValue("");
                             }}
-                                    className="flex gap-2 items-center bg-yellow-300 text-black px-4 py-2 rounded-xl font-medium hover:cursor-pointer hover:bg-yellow-400 text-lg"
+                                    className="flex gap-2 items-center w-fit text-black px-4 py-2 rounded-xl font-medium hover:cursor-pointer bg-gradient-to-r from-yellow-600 to-yellow-500 hover:from-yellow-500 hover:to-yellow-400 transition-all duration-300 hover:shadow-lg hover:shadow-yellow-500/25 text-lg"
                             >
                                 <Dices size={18}/>
                                 Reset
@@ -715,6 +715,7 @@ const SearchSort = () => {
                         </div>
                     </div>
 
+                    {/* Complexity Component */}
                     <div className="space-y-6">
                         <div className="bg-white/5 rounded-xl p-4">
                             <h4 className="text-xl mb-2 font-semibold">Space Complexity</h4>

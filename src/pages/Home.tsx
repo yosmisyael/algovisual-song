@@ -10,7 +10,7 @@ import type {
   PredefinedPreset,
   VolumeControlProp
 } from "../types/AudioControlProp.ts";
-import SearchSortBar from "../components/SearchSortBar.tsx";
+import Navbar from "../components/Navbar.tsx";
 import Sidebar from "../components/Sidebar.tsx";
 import {fetchApiData} from "../lib/api.ts";
 import Player from "../components/Player.tsx";
@@ -191,7 +191,7 @@ const MusicPlayerInterface = () => {
 
   return (
       <section className="flex flex-col min-h-screen bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900 text-white">
-        <SearchSortBar />
+        <Navbar />
         {/* Main Content */}
         <div className="flex">
           {/* Left Sidebar */}
