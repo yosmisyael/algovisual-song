@@ -1,6 +1,8 @@
-<h1 align="center" id="title">algoviasual-song</h1>
+<h1 align="center" id="title">algovisual-song</h1>
 
-<p id="description">Data Structure and Algorithm Course Final Project Second Semester EEPIS</p>
+<p align="center"><img src="https://socialify.git.ci/yosmisyael/algovisual-song/image?language=1&amp;name=1&amp;pattern=Brick+Wall&amp;theme=Light" alt="project-image"></p>
+
+<p id="description">Implementation example of sorting algorithm (merge sort and quick sort) and search (binary search) in song player application - final project of algorithm and data structure course semester 2 EEPIS</p>
 
   
   
@@ -8,32 +10,53 @@
 
 Here're some of the project's best features:
 
-*   Search Song
-*   Sort Song by Title
-*   Sort Song by Year
-*   Sort Song by Artists
+*   Search song by title or track id with leveraging binary search
+*   Sort song easily with merge and quick sort algorithm
+*   Play tracks from playlist
 
 <h2>🛠️ Installation Steps:</h2>
 
-<p>1. Clone this repository</p>
+<p>1. Clone the repository</p>
 
 ```
-git clone https://github.com/yosmisyael/algovisual-song
+git clone https://github.com/yosmisyael/algovisual-song.git
 ```
 
-<p>2. Install required dependencies</p>
+<p>2. Install backend depenencies</p>
 
 ```
-cd frontend && npm install
 cd backend && npm install
 ```
 
-<p>3. Run the application</p>
+<p>3. Install frontend dependencies</p>
 
 ```
-# backend
+cd frontend && npm install
+```
+
+<p>4. Configure backend app configuration</p>
+
+```
+cd backend && cp .env.example .env
+```
+
+<p>5. After configuring the .env file seed the playlist dataset into database from <code>dataset.sql</code> file</p>
+
+<p>6. Run the backend application</p>
+
+```
 cd backend && npm run start
-# frontend
+```
+
+<p>7. Build the frontend app and deploy it</p>
+
+```
+cd frontend && npm run build
+```
+
+<p>8. Or if you want to run in development mode</p>
+
+```
 cd frontend && npm run dev
 ```
 
@@ -44,10 +67,13 @@ cd frontend && npm run dev
 Technologies used in the project:
 
 *   React
-*   Mysql
 *   TypeScript
-*   Vite
+*   MySQL
+*   Node.Js
+*   Tailwind CSS
 
-<h2>🛡️ License:</h2>
+<h2>Tribute</h2>
 
-This project is licensed under the MIT
+Special thanks to my team
+- [Fahroldhi](https://github.com/acalypha9) as frontend dev
+- [Aqilah]() as UI/UX
