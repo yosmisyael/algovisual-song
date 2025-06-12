@@ -24,13 +24,17 @@ git clone https://github.com/yosmisyael/algovisual-song
 <p>2. Install required dependencies</p>
 
 ```
-npm install
+cd frontend && npm install
+cd backend && npm install
 ```
 
 <p>3. Run the application</p>
 
 ```
-npm run dev
+# backend
+cd backend && npm run start
+# frontend
+cd frontend && npm run dev
 ```
 
   
