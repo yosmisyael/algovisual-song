@@ -22,8 +22,11 @@ const Navbar = ({ onSearch }: { onSearch?: (term: string) => void }) => {
     };
 
     return (
-        <div className="flex items-center justify-between py-2 bg-black/10 backdrop-blur-sm">
-            <div></div>
+        <div className="flex items-center justify-between py-2 bg-black/10 backdrop-blur-sm px-6">
+            <div className="flex items-center justify-between gap-2">
+                <img src="/logo.png" alt="application logo" className="h-10"/>
+                <h1 className="font-black text-3xl bg-gradient-to-br from-purple-300 via-violet-600 to-teal-500 bg-clip-text text-transparent">Qilabloxtify</h1>
+            </div>
             <div className="flex items-center space-x-4">
                 <a href="/" className="hover:cursor-pointer">
                     <Home/>
@@ -48,7 +51,7 @@ const Navbar = ({ onSearch }: { onSearch?: (term: string) => void }) => {
                     </a>
                 </div>
             </div>
-            <div></div>
+            <div className="text-transparent select-none">something hidden here</div>
         </div>
     );
 };
