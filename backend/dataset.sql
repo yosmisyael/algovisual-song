@@ -5,7 +5,7 @@ CREATE TABLE `collections` (
                                `year` int DEFAULT NULL,
                                `album` varchar(255) DEFAULT NULL,
                                `artist` varchar(255) DEFAULT NULL,
-                               `duration_ms_ms` int DEFAULT NULL,
+                               `duration_ms` int DEFAULT NULL,
                                `cover` varchar(255) DEFAULT NULL,
                                `popularity` int DEFAULT NULL,
                                `preview_url` varchar(255) DEFAULT NULL,
